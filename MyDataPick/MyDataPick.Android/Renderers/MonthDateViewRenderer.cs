@@ -24,7 +24,7 @@ using MyDataPick.Droid.Theme;
 [assembly: ExportRenderer(typeof(MyDataPick.Views.MonthDateView), typeof(MonthDateViewRenderer))]
 namespace MyDataPick.Droid.Renderers
 {
-    public class MonthDateViewRenderer : ViewRenderer<MyDataPick.Views.MonthDateView, Android.Views.View>
+    public class MonthDateViewRenderer : ViewRenderer<MyDataPick.Views.MonthDateView, Android.Views.View>,IDisposable
     {
         private static readonly int NUM_COLUMNS = 7;
         private static readonly int NUM_ROWS = 6;
@@ -57,7 +57,7 @@ namespace MyDataPick.Droid.Renderers
             Log.Info("Life", "OnAttachedToWindow");
             mDisplayMetrics = Resources.DisplayMetrics;//.getDisplayMetrics();
             //Calendar calendar = Calendar.Instance;//.getInstance();
-            mPaint = new Paint();
+            mPaint = new Paint(PaintFlags.AntiAlias);
             mCurrYear = this.Element.Date.Year;// this.mSelYear;// calendar.Get(CalendarField.Year);//.get(Calendar.YEAR);
             mCurrMonth = this.Element.Date.Month;// this.mSelMonth;// calendar.Get(CalendarField.Month);//.get(Calendar.MONTH);
             mCurrDay = this.Element.Date.Day;// this.mSelDay;// calendar.Get(CalendarField.Date);//.get(Calendar.DATE);
@@ -73,11 +73,17 @@ namespace MyDataPick.Droid.Renderers
             {
                 Log.WriteLine(LogPriority.Info, "Test", "OnElementPropertyChanged");
                 MonthDateView monthDateView = (MonthDateView)sender;
-                daysHasThingList = monthDateView.Thing;
+                //daysHasThingList = monthDateView.Thing;
                 SetSelectYearMonth(monthDateView.Date.Year, monthDateView.Date.Month, monthDateView.Date.Day);
                 Invalidate();
             }
-            
+            else if (e.PropertyName.Equals("Thing"))
+            {
+                MonthDateView monthDateView = (MonthDateView)sender;
+                daysHasThingList = monthDateView.Thing;
+                //SetSelectYearMonth(monthDateView.Date.Year, monthDateView.Date.Month, monthDateView.Date.Day);
+                Invalidate();
+            }
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -101,6 +107,10 @@ namespace MyDataPick.Droid.Renderers
             SetMeasuredDimension(widthSize, heightSize);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+        }
 
         protected override void OnDraw(Canvas canvas)
         {

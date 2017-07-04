@@ -1,4 +1,5 @@
 ﻿using MyDataPick.Converters;
+using MyDataPick.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +25,34 @@ namespace MyDataPick.Views
             set { SetValue(DateProperty, value); }
         }
 
-        public WeekDayView weekDayView;
-        public MonthDateView monthDateView;
+        public static readonly BindableProperty ThingProperty = BindableProperty.Create(
+           propertyName: "Thing",
+           returnType: typeof(List<ThingModel>),
+           declaringType: typeof(MonthDateView),propertyChanged: (a,b,c) => { },
+           defaultValue:  null);
+
+        public List<ThingModel> Thing
+        {
+            get { return (List<ThingModel>)GetValue(ThingProperty); }
+            set { SetValue(ThingProperty, value); }
+        }
+
+        public static readonly BindableProperty ClickProperty = BindableProperty.Create(
+            propertyName: "Click",
+            returnType: typeof(Action<int, int, int>),
+            declaringType: typeof(MonthDateView),
+            defaultValue: null);
+
+        public Action<int, int, int> Click
+        {
+            get { return (Action<int, int, int>)GetValue(ClickProperty); }
+            set { SetValue(ClickProperty, value); }
+        }
+
+        private WeekDayView weekDayView;
+        private MonthDateView monthDateView;
+        private ScrollMonthDateView scrollMonthDateView;
+        ScrollMonthDateViewEx scrollMonthDateViewEx;
 
         public MyDataPick() { }
 
@@ -42,43 +69,32 @@ namespace MyDataPick.Views
                     Color btnBg = Color.FromHex("1FC2F3");
                     Color btnText = new Color(243, 254, 252);
                     DateTime now = DateTime.Now;
-                    List<DateTime> thing = new List<DateTime>() {
-                        new DateTime(2017,6,10),
-                        new DateTime(2017,6,11),
-                        new DateTime(2017,6,12),
-                        new DateTime(2017,6,13),
-                        new DateTime(2017,6,14),
-                        new DateTime(2017,6,15),
-                        new DateTime(2017,6,16),
-                        new DateTime(2017,6,17),
-                        new DateTime(2017,6,18),
-                        new DateTime(2017,6,19),
-                        new DateTime(2017,6,20),
-                    };
 
                     weekDayView = new WeekDayView() { BackgroundColor = bg, HeightRequest = unit };
-                    monthDateView = new MonthDateView() { BackgroundColor = bg, HeightRequest = (this.HeightRequest - unit * 2), Date = now, Thing = thing };
+                    monthDateView = new MonthDateView() { BackgroundColor = bg, HeightRequest = (this.HeightRequest - unit * 2), Date = now };
+                    scrollMonthDateView = new ScrollMonthDateView() { BackgroundColor = bg, HeightRequest = (this.HeightRequest - unit * 2), Date = now };
+                    scrollMonthDateViewEx = new ScrollMonthDateViewEx() { BackgroundColor = bg, HeightRequest = (this.HeightRequest - unit * 2), Date = now };
 
+
+                    //上下月按钮与标题
                     Button previous = new Button() { Text = "＜", BackgroundColor = btnBg, TextColor = btnText, BorderRadius = 0, WidthRequest = unit, HorizontalOptions = LayoutOptions.Start };
                     Button next = new Button() { Text = "＞", BackgroundColor = btnBg, TextColor = btnText, BorderRadius = 0, WidthRequest = unit, HorizontalOptions = LayoutOptions.End };
                     Label year = new Label() { TextColor = Color.Black, HorizontalOptions = LayoutOptions.CenterAndExpand, VerticalOptions = LayoutOptions.Center };
 
                     Binding binding = new Binding();
-                    binding.Source = monthDateView;
+                    binding.Source = scrollMonthDateViewEx;
                     binding.Path = "Date";
                     binding.Converter = new Date2StringConverter();
                     binding.Mode = BindingMode.OneWay;
-
                     year.SetBinding(Label.TextProperty, binding);
 
-
                     previous.Clicked += (sender,e) => {
-                        monthDateView.Date = monthDateView.Date.AddMonths(-1);
+                        scrollMonthDateViewEx.Date = scrollMonthDateViewEx.Date.AddMonths(-1);
                         //year.Text = monthDateView.Date.ToString("yyyy年 MM月");
                     };
 
                     next.Clicked += (sender, e) => {
-                        monthDateView.Date = monthDateView.Date.AddMonths(1);
+                        scrollMonthDateViewEx.Date = scrollMonthDateViewEx.Date.AddMonths(1);
                         //year.Text = monthDateView.Date.ToString("yyyy年 MM月");
                     };
 
@@ -96,23 +112,27 @@ namespace MyDataPick.Views
                         HeightRequest = unit
                     };
 
+                    //组装
                     Content = new StackLayout()
                     {
                         Orientation = StackOrientation.Vertical,
-                        Children = { yearView,weekDayView, monthDateView },
+                        Children = { yearView, weekDayView, scrollMonthDateViewEx },
                         Spacing = 0,
                     };
                 }
             }
             else if (propertyName.Equals("Date"))
             {
-                monthDateView.Date = this.Date;
+                scrollMonthDateViewEx.Date = this.Date;
             }
-        }
-
-        protected override void OnChildAdded(Element child)
-        {
-            base.OnChildAdded(child);
+            else if (propertyName.Equals("Thing"))
+            {
+                scrollMonthDateViewEx.Thing = this.Thing;
+            }
+            else if (propertyName.Equals("Click"))
+            {
+                scrollMonthDateViewEx.Click = this.Click;
+            }
         }
     }
 }

@@ -96,10 +96,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Handler\MonthView.cs" />
     <Compile Include="Handler\MyDataPick.cs" />
     <Compile Include="Helpers\DateUtils.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Renderers\MonthDateViewRenderer.cs" />
+    <Compile Include="Renderers\ScrollMonthDateViewExRenderer.cs" />
+    <Compile Include="Renderers\ScrollMonthDateViewRenderer.cs" />
     <Compile Include="Renderers\WeekDayViewRenderer.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

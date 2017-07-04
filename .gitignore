@@ -3,3 +3,8 @@
 ################################################################################
 
 /MyDataPick/MyDataPick/bin/Debug
+/MyDataPick/MyDataPick/obj/Debug
+/MyDataPick/MyDataPick.Android/bin/Debug
+/MyDataPick/MyDataPick.Android/obj
+/MyDataPick/MyDataPick.iOS/obj/iPhone/Debug
+/packages

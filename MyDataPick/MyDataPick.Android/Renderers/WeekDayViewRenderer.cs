@@ -33,7 +33,7 @@ namespace MyDataPick.Droid.Renderers
         {
             base.OnAttachedToWindow();
             mDisplayMetrics = Resources.DisplayMetrics;// getResources().getDisplayMetrics();
-            paint = new Paint();
+            paint = new Paint(PaintFlags.AntiAlias);
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)

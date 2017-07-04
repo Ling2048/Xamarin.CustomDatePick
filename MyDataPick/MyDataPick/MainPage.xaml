@@ -6,9 +6,7 @@
 
     <StackLayout>
         <Label Text="Welcome to Xamarin Forms!"  />
-        <Button Text="改变时间" Clicked="Button_Clicked"/>
         <local:MyDataPick x:Name="dp" BackgroundColor="WhiteSmoke"  HeightRequest="400"/>
-
     </StackLayout>
 
 
