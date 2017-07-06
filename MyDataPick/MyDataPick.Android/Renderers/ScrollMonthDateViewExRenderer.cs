@@ -25,7 +25,7 @@ namespace MyDataPick.Droid.Renderers
     public class ScrollMonthDateViewExRenderer : ViewRenderer<MyDataPick.Views.ScrollMonthDateViewEx, Android.Views.View>, IDisposable
     {
         private static readonly int NUM_COLUMNS = 7;
-        private static readonly int NUM_ROWS = 6;
+        private static int NUM_ROWS = 6;
         private Paint mPaint;
         private Android.Graphics.Color mDayColor = Android.Graphics.Color.ParseColor("#000000");
         private Android.Graphics.Color mSelectDayColor = Android.Graphics.Color.ParseColor("#ffffff");
@@ -49,9 +49,8 @@ namespace MyDataPick.Droid.Renderers
         private int downX = 0, downY = 0;
         private int mTouchSlop;
         private int smoothMode;
-        private int leftYear, leftMonth, leftDay;
-        private int rightYear, rightMonth, rightDay;
-
+        protected float columnSize, rowSize, baseRowSize;
+        protected float density;
         //DateTime mSelDate;
         //DateTime mLeftDate;
         //DateTime mRightDate;
@@ -66,6 +65,7 @@ namespace MyDataPick.Droid.Renderers
             base.OnAttachedToWindow();
 
             Log.Info("Life", "OnAttachedToWindow");
+            density = Resources.DisplayMetrics.Density;
             mDisplayMetrics = Resources.DisplayMetrics;//.getDisplayMetrics();
             //Calendar calendar = Calendar.Instance;//.getInstance();
             mPaint = new Paint(PaintFlags.AntiAlias);
@@ -74,16 +74,10 @@ namespace MyDataPick.Droid.Renderers
             mCurrDay = this.Element.Date.Day;// this.mSelDay;// calendar.Get(CalendarField.Date);//.get(Calendar.DATE);
             daysHasThingList = this.Element.Thing;
             mScroller = new Scroller(this.Context);
-            mTouchSlop = ViewConfiguration.Get(this.Context).ScaledDoubleTapSlop;//.GetScaledTouchSlop();
+            mTouchSlop = ViewConfiguration.Get(this.Context).ScaledTouchSlop;//.GetScaledTouchSlop();
             smoothMode = 0;
-
-            //mSelDate = this.Element.Date;
-            //mLeftDate = mSelDate.AddMonths(-1);
-            //mRightDate = mSelDate.AddMonths(1);
-            //return;
+            baseRowSize = rowSize = 70;
             SetSelectYearMonth(mCurrYear, mCurrMonth, mCurrDay);
-            //SetLeftDate();
-            //SetRightDate();
         }
 
         protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -114,17 +108,14 @@ namespace MyDataPick.Droid.Renderers
             MeasureSpecMode widthMode = MeasureSpec.GetMode(widthMeasureSpec);
 
             int heightSize = MeasureSpec.GetSize(heightMeasureSpec);
-            MeasureSpecMode heightMode = MeasureSpec.GetMode(heightMeasureSpec);
-
-            if (heightMode == MeasureSpecMode.AtMost)
-            {
-                heightSize = Convert.ToInt32(mDisplayMetrics.DensityDpi) * 200;
-            }
+            this.ClipBounds = new Rect(0, 0, widthSize, heightSize);//控制显示区域
             if (widthMode == MeasureSpecMode.AtMost)
             {
-                widthSize = Convert.ToInt32(mDisplayMetrics.DensityDpi) * 300;
+                widthSize = (int)(300 * density);
             }
             width = widthSize;
+            NUM_ROWS = 6; //本来是想根据每月的行数，动态改变控件高度，现在为了使滑动的左右两边效果相同，不适用getMonthRowNumber();
+            heightSize = (int)(NUM_ROWS * baseRowSize);
             SetMeasuredDimension(widthSize, heightSize);
         }
 
@@ -136,9 +127,9 @@ namespace MyDataPick.Droid.Renderers
         protected override void OnDraw(Canvas canvas)
         {
             InitSize();
-
             //绘制上一月份
             DrawDate(canvas, this.Element.Date.AddMonths(-1).Year, this.Element.Date.AddMonths(-1).Month, (indexMonth - 1) * width, 0);
+            //canvas.DrawColor(Android.Graphics.Color.Transparent, PorterDuff.Mode.Clear);
             //绘制下一月份
             DrawDate(canvas, this.Element.Date.AddMonths(1).Year, this.Element.Date.AddMonths(1).Month, (indexMonth + 1) * width, 0);
             //绘制当前月份
@@ -149,17 +140,31 @@ namespace MyDataPick.Droid.Renderers
         {
             canvas.Save();
             canvas.Translate(startX, startY);
+            #region 画时间
             daysString = new int[6, 7];
             mPaint.TextSize = mDaySize * mDisplayMetrics.ScaledDensity;//.scaledDensity;
             string dayString;
             int mMonthDays = DateUtils.getMonthDays(year, month);
             int weekNumber = DateUtils.getFirstDayWeek(year, month);
+            int row = 0;
+            if (weekNumber == 6)
+            {
+
+            }
+            else
+            {
+
+            }
             Log.WriteLine(LogPriority.Info, "DateView", "DateView:" + mSelMonth + "月1号周" + weekNumber);//.d("DateView", "DateView:" + mSelMonth + "月1号周" + weekNumber);
             for (int day = 0; day < mMonthDays; day++)
             {
                 dayString = (day + 1) + "";
                 int column = (day + weekNumber - 1) % 7;
-                int row = (day + weekNumber - 1) / 7;
+                row = (day + weekNumber - 1) / 7;
+                if (weekNumber == 6)
+                {
+                    row += 1;
+                }
                 daysString[row, column] = day + 1;
                 startX = (int)(mColumnSize * column + (mColumnSize - mPaint.MeasureText(dayString)) / 2);
                 startY = (int)(mRowSize * row + mRowSize / 2 - (mPaint.Ascent() + mPaint.Descent()) / 2);
@@ -191,7 +196,8 @@ namespace MyDataPick.Droid.Renderers
                     mPaint.Color = mDayColor;
                 }
                 canvas.DrawText(dayString, startX, startY, mPaint);
-            }
+            } 
+            #endregion
             canvas.Restore();//.restore();
         }
 
@@ -270,7 +276,7 @@ namespace MyDataPick.Droid.Renderers
         public void SmoothScrollBy(int dx, int dy)
         {
             //设置mScroller的滚动偏移量
-            mScroller.StartScroll(mScroller.FinalX, mScroller.FinalY, dx, dy, 500);
+            mScroller.StartScroll(mScroller.FinalX, mScroller.FinalY, dx, dy, 200);
             Invalidate();//这里必须调用invalidate()才能保证computeScroll()会被调用，否则不一定会刷新界面，看不到滚动效果
         }
 

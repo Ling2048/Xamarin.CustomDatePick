@@ -4,9 +4,11 @@
              xmlns:local="clr-namespace:MyDataPick.Views;assembly=MyDataPick"
              x:Class="MyDataPick.MainPage">
 
-    <StackLayout>
-        <Label Text="Welcome to Xamarin Forms!"  />
-        <local:MyDataPick x:Name="dp" BackgroundColor="WhiteSmoke"  HeightRequest="400"/>
+    <StackLayout Orientation="Vertical">
+        <StackLayout Margin="10" HorizontalOptions="Center">
+            <!--<Label Text="Welcome to Xamarin Forms!"  />-->
+            <local:MyDataPick x:Name="dp" BackgroundColor="DarkGray"  HeightRequest="400" />
+        </StackLayout>
     </StackLayout>
 
 
