@@ -51,7 +51,6 @@ namespace MyDataPick.Views
             if (cmd != null) cmd.CanExecute(CommandParameter);
         }
 
-
         public DateTime Date
         {
             get { return (DateTime)GetValue(DateProperty); }
@@ -95,7 +94,6 @@ namespace MyDataPick.Views
                 if (cmd != null)
                     cmd.CanExecuteChanged -= CommandCanExecuteChanged;
             }
-
             base.OnPropertyChanging(propertyName);
         }
 
@@ -114,7 +112,6 @@ namespace MyDataPick.Views
                     DateTime now = DateTime.Now;
 
                     weekDayView = new WeekDayView() { BackgroundColor = bg, HeightRequest = unit };
-                    //monthDateView = new MonthDateView() { BackgroundColor = bg, HeightRequest = (this.HeightRequest - unit * 2), Date = now };
                     scrollMonthDateViewEx = new ScrollMonthDateViewEx() { BackgroundColor = bg, HeightRequest = (this.HeightRequest - unit * 2), Date = now };
 
                     //上下月按钮与标题
@@ -131,12 +128,10 @@ namespace MyDataPick.Views
 
                     previous.Clicked += (sender,e) => {
                         scrollMonthDateViewEx.Date = scrollMonthDateViewEx.Date.AddMonths(-1);
-                        //year.Text = monthDateView.Date.ToString("yyyy年 MM月");
                     };
 
                     next.Clicked += (sender, e) => {
                         scrollMonthDateViewEx.Date = scrollMonthDateViewEx.Date.AddMonths(1);
-                        //year.Text = monthDateView.Date.ToString("yyyy年 MM月");
                     };
 
                     StackLayout yearView = new StackLayout()
@@ -179,11 +174,6 @@ namespace MyDataPick.Views
         protected override void OnSizeAllocated(double width, double height)
         {
             base.OnSizeAllocated(width, height);
-            //if (scrollMonthDateViewEx != null)
-            //{
-            //    scrollMonthDateViewEx.WidthRequest = width;
-            //}
-
         }
 
     }

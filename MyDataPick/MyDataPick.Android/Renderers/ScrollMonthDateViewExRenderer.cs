@@ -303,12 +303,10 @@ namespace MyDataPick.Droid.Renderers
             if ((daysString[row, column] >= 1 && daysString[row, column] <= 10 && row >= 4))
             {
                 this.Element.Date = this.Element.Date.AddMonths(1);
-                //return;
             }
             else if (daysString[row, column] >= 25 && daysString[row, column] <= 31 && row == 0)
             {
                 this.Element.Date = this.Element.Date.AddMonths(-1);
-                //return;
             }
             SetSelectYearMonth(mSelYear, mSelMonth, daysString[row, column]);
             Invalidate();
