@@ -7,7 +7,7 @@
     <StackLayout Orientation="Vertical">
         <StackLayout Margin="10" HorizontalOptions="Center">
             <!--<Label Text="Welcome to Xamarin Forms!"  />-->
-            <local:MyDataPick x:Name="dp" BackgroundColor="DarkGray"  HeightRequest="400" />
+            <local:MyDataPick x:Name="dp" BackgroundColor="White"  HeightRequest="400" />
         </StackLayout>
     </StackLayout>
 

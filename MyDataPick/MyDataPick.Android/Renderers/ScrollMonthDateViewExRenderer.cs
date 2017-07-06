@@ -51,9 +51,6 @@ namespace MyDataPick.Droid.Renderers
         private int smoothMode;
         protected float columnSize, rowSize, baseRowSize;
         protected float density;
-        //DateTime mSelDate;
-        //DateTime mLeftDate;
-        //DateTime mRightDate;
 
         public MyDataPick.Views.ScrollMonthDateViewEx _element
         {
@@ -67,7 +64,6 @@ namespace MyDataPick.Droid.Renderers
             Log.Info("Life", "OnAttachedToWindow");
             density = Resources.DisplayMetrics.Density;
             mDisplayMetrics = Resources.DisplayMetrics;//.getDisplayMetrics();
-            //Calendar calendar = Calendar.Instance;//.getInstance();
             mPaint = new Paint(PaintFlags.AntiAlias);
             mCurrYear = this.Element.Date.Year;// this.mSelYear;// calendar.Get(CalendarField.Year);//.get(Calendar.YEAR);
             mCurrMonth = this.Element.Date.Month;// this.mSelMonth;// calendar.Get(CalendarField.Month);//.get(Calendar.MONTH);
@@ -87,15 +83,12 @@ namespace MyDataPick.Droid.Renderers
             {
                 Log.WriteLine(LogPriority.Info, "Test", "OnElementPropertyChanged");
                 ScrollMonthDateViewEx monthDateView = (ScrollMonthDateViewEx)sender;
-                //daysHasThingList = monthDateView.Thing;
-                SetSelectYearMonth(monthDateView.Date.Year, monthDateView.Date.Month, monthDateView.Date.Day);
                 Invalidate();
             }
             else if (e.PropertyName.Equals("Thing"))
             {
                 ScrollMonthDateViewEx monthDateView = (ScrollMonthDateViewEx)sender;
                 daysHasThingList = monthDateView.Thing;
-                //SetSelectYearMonth(monthDateView.Date.Year, monthDateView.Date.Month, monthDateView.Date.Day);
                 Invalidate();
             }
         }
@@ -128,75 +121,98 @@ namespace MyDataPick.Droid.Renderers
         {
             InitSize();
             //绘制上一月份
-            DrawDate(canvas, this.Element.Date.AddMonths(-1).Year, this.Element.Date.AddMonths(-1).Month, (indexMonth - 1) * width, 0);
+            DrawDate(canvas, this.Element.Date.AddMonths(-1), (indexMonth - 1) * width, 0);
             //canvas.DrawColor(Android.Graphics.Color.Transparent, PorterDuff.Mode.Clear);
             //绘制下一月份
-            DrawDate(canvas, this.Element.Date.AddMonths(1).Year, this.Element.Date.AddMonths(1).Month, (indexMonth + 1) * width, 0);
+            DrawDate(canvas, this.Element.Date.AddMonths(1), (indexMonth + 1) * width, 0);
             //绘制当前月份
-            DrawDate(canvas, this.Element.Date.Year, this.Element.Date.Month, indexMonth * width, 0);
+            DrawDate(canvas, this.Element.Date, indexMonth * width, 0);
         }
 
-        private void DrawDate(Canvas canvas, int year, int month, int startX, int startY)
+        private void DrawDate(Canvas canvas, DateTime dateTime, int startX, int startY)
         {
             canvas.Save();
             canvas.Translate(startX, startY);
+
+            int year = dateTime.Year;
+            int month = dateTime.Month;
+
             #region 画时间
             daysString = new int[6, 7];
             mPaint.TextSize = mDaySize * mDisplayMetrics.ScaledDensity;//.scaledDensity;
             string dayString;
+            int pMonthDays = DateUtils.getMonthDays(dateTime.AddMonths(-1).Year, dateTime.AddMonths(-1).Month );
             int mMonthDays = DateUtils.getMonthDays(year, month);
             int weekNumber = DateUtils.getFirstDayWeek(year, month);
-            int row = 0;
-            if (weekNumber == 6)
+            int row = 0, column = 0;
+            int firstDay = 0;
+            bool isPreviousDone = true;
+            if (weekNumber == 1)
             {
-
+                firstDay = pMonthDays - 7;
             }
             else
             {
-
+                firstDay = pMonthDays - weekNumber + 1;
             }
+
             Log.WriteLine(LogPriority.Info, "DateView", "DateView:" + mSelMonth + "月1号周" + weekNumber);//.d("DateView", "DateView:" + mSelMonth + "月1号周" + weekNumber);
-            for (int day = 0; day < mMonthDays; day++)
+            mPaint.Color = Android.Graphics.Color.Gray;
+            for (int day = firstDay; row < 6; row++)
             {
-                dayString = (day + 1) + "";
-                int column = (day + weekNumber - 1) % 7;
-                row = (day + weekNumber - 1) / 7;
-                if (weekNumber == 6)
+                for (; column < 7; day++, column++)
                 {
-                    row += 1;
+                    if (day == pMonthDays && isPreviousDone)
+                    {
+                        day = 0;
+                        isPreviousDone = false;
+                    }
+                    else if (day == mMonthDays && !isPreviousDone)
+                    {
+                        day = 0;
+                        mPaint.Color = Android.Graphics.Color.Gray;
+                        isPreviousDone = true;
+                    }
+
+                    dayString = (day + 1) + "";
+                    daysString[row, column] = day + 1;
+                    startX = (int)(mColumnSize * column + (mColumnSize - mPaint.MeasureText(dayString)) / 2);
+                    startY = (int)(mRowSize * row + mRowSize / 2 - (mPaint.Ascent() + mPaint.Descent()) / 2);
+
+                    if (dayString.Equals(mSelDay + "") && !isPreviousDone)
+                    {
+                        //绘制背景色矩形
+                        int startRecX = mColumnSize * column;
+                        int startRecY = mRowSize * row;
+                        int endRecX = startRecX + mColumnSize;
+                        int endRecY = startRecY + mRowSize;
+                        mPaint.Color = mSelectBGColor;//.SetColor(mSelectBGColor);
+                        canvas.DrawRect(startRecX, startRecY, endRecX, endRecY, mPaint);
+                        //记录第几行，即第几周
+                        weekRow = row + 1;
+                    }
+                    //绘制事务圆形标志
+                    if (!isPreviousDone) DrawCircle(row, column, year, month, day + 1, canvas);
+                    if (dayString.Equals(mSelDay + "") && !isPreviousDone)
+                    {
+                        mPaint.Color = mSelectDayColor;
+                    }
+                    else if (dayString.Equals(mCurrDay + "") && mCurrDay != mSelDay && mCurrMonth == this.Element.Date.Month && mCurrYear == this.Element.Date.Year && !isPreviousDone)
+                    {
+                        //正常月，选中其他日期，则今日为红色
+                        mPaint.Color = mCurrentColor;
+                    }
+                    else if (!isPreviousDone)
+                    {
+                        mPaint.Color = mDayColor;
+                    }
+                    canvas.DrawText(dayString, startX, startY, mPaint);
+
+                    continue;
                 }
-                daysString[row, column] = day + 1;
-                startX = (int)(mColumnSize * column + (mColumnSize - mPaint.MeasureText(dayString)) / 2);
-                startY = (int)(mRowSize * row + mRowSize / 2 - (mPaint.Ascent() + mPaint.Descent()) / 2);
-                if (dayString.Equals(mSelDay + ""))
-                {
-                    //绘制背景色矩形
-                    int startRecX = mColumnSize * column;
-                    int startRecY = mRowSize * row;
-                    int endRecX = startRecX + mColumnSize;
-                    int endRecY = startRecY + mRowSize;
-                    mPaint.Color = mSelectBGColor;//.SetColor(mSelectBGColor);
-                    canvas.DrawRect(startRecX, startRecY, endRecX, endRecY, mPaint);
-                    //记录第几行，即第几周
-                    weekRow = row + 1;
-                }
-                //绘制事务圆形标志
-                DrawCircle(row, column, year, month, day + 1, canvas);
-                if (dayString.Equals(mSelDay + ""))
-                {
-                    mPaint.Color = mSelectDayColor;
-                }
-                else if (dayString.Equals(mCurrDay + "") && mCurrDay != mSelDay && mCurrMonth == mSelMonth && mCurrYear == mSelYear)
-                {
-                    //正常月，选中其他日期，则今日为红色
-                    mPaint.Color = mCurrentColor;
-                }
-                else
-                {
-                    mPaint.Color = mDayColor;
-                }
-                canvas.DrawText(dayString, startX, startY, mPaint);
-            } 
+
+                column = 0;
+            }
             #endregion
             canvas.Restore();//.restore();
         }
@@ -225,29 +241,13 @@ namespace MyDataPick.Droid.Renderers
                     int upY = (int)e.GetY();
                     if (upX - downX > 0 && Math.Abs(upX - downX) > mTouchSlop)
                     {//左滑
-                        if (smoothMode == 0)
-                        {
-                            //SetLeftDate();
-                            indexMonth--;
-                            this.Element.Date = this.Element.Date.AddMonths(-1);
-                        }
-                        else
-                        {
-                            //onLeftClick();
-                        }
+                        indexMonth--;
+                        this.Element.Date = this.Element.Date.AddMonths(-1);
                     }
                     else if (upX - downX < 0 && Math.Abs(upX - downX) > mTouchSlop)
                     {//右滑
-                        if (smoothMode == 0)
-                        {
-                            //SetRightDate();
-                            indexMonth++;
-                            this.Element.Date = this.Element.Date.AddMonths(1);
-                        }
-                        else
-                        {
-                            //onRightClick();
-                        }
+                        indexMonth++;
+                        this.Element.Date = this.Element.Date.AddMonths(1);
                     }
                     else if (Math.Abs(upX - downX) < 10 && Math.Abs(upY - downY) < 10)
                     {//点击事件
@@ -290,83 +290,6 @@ namespace MyDataPick.Droid.Renderers
             //base.ComputeScroll();
         }
 
-        //private void SetRightDate()
-        //{
-        //    int year = mSelYear;
-        //    int month = mSelMonth;
-        //    int day = mSelDay;
-        //    if (month == 11)
-        //    {//若果是12月份，则变成1月份
-        //        year = mSelYear + 1;
-        //        month = 0;
-        //    }
-        //    else if (DateUtils.getMonthDays(year, month + 1) < day)
-        //    {//向右滑动，当前月天数小于左边的
-        //     //如果当前日期为该月最后一点，当向前推的时候，就需要改变选中的日期
-        //        month = month + 1;
-        //        day = DateUtils.getMonthDays(year, month);
-        //    }
-        //    else
-        //    {
-        //        month = month + 1;
-        //    }
-        //    SetSelectYearMonth(year, month, day);
-        //    computeDate();
-        //}
-
-        //private void SetLeftDate()
-        //{
-        //    int year = mSelYear;
-        //    int month = mSelMonth;
-        //    int day = mSelDay;
-        //    if (month == 0)
-        //    {//若果是1月份，则变成12月份
-        //        year = mSelYear - 1;
-        //        month = 11;
-        //    }
-        //    else if (DateUtils.getMonthDays(year, month - 1) < day)
-        //    {//向左滑动，当前月天数小于左边的
-        //     //如果当前日期为该月最后一点，当向前推的时候，就需要改变选中的日期
-        //        month = month - 1;
-        //        day = DateUtils.getMonthDays(year, month);
-        //    }
-        //    else
-        //    {
-        //        month = month - 1;
-        //    }
-        //    SetSelectYearMonth(year, month, day);
-        //    computeDate();
-        //}
-
-        //private void computeDate()
-        //{
-        //    if (mSelMonth == 0)
-        //    {
-        //        leftYear = mSelYear - 1;
-        //        leftMonth = 11;
-        //        rightYear = mSelYear;
-        //        rightMonth = mSelMonth + 1;
-        //    }
-        //    else if (mSelMonth == 11)
-        //    {
-        //        leftYear = mSelYear;
-        //        leftMonth = mSelMonth - 1;
-        //        rightYear = mSelYear + 1;
-        //        rightMonth = 0;
-        //    }
-        //    else
-        //    {
-        //        leftYear = mSelYear;
-        //        leftMonth = mSelMonth - 1;
-        //        rightYear = mSelYear;
-        //        rightMonth = mSelMonth + 1;
-        //    }
-        //    //if (monthLisener != null)
-        //    //{
-        //    //    monthLisener.setTextMonth();
-        //    //}
-        //}
-
 
         /**
          * 执行点击事件
@@ -377,12 +300,22 @@ namespace MyDataPick.Droid.Renderers
         {
             int row = y / mRowSize;
             int column = x / mColumnSize;
+            if ((daysString[row, column] >= 1 && daysString[row, column] <= 10 && row >= 4))
+            {
+                this.Element.Date = this.Element.Date.AddMonths(1);
+                //return;
+            }
+            else if (daysString[row, column] >= 25 && daysString[row, column] <= 31 && row == 0)
+            {
+                this.Element.Date = this.Element.Date.AddMonths(-1);
+                //return;
+            }
             SetSelectYearMonth(mSelYear, mSelMonth, daysString[row, column]);
             Invalidate();
             //执行activity发送过来的点击处理事件
             if (this.Element.Click != null)
             {
-                this.Element.Click.Invoke(mSelYear, mSelMonth, daysString[row, column]);//.onClickOnDate();
+                this.Element.Click.Invoke(this.Element.Date.Year, this.Element.Date.Month, daysString[row, column]);//.onClickOnDate();
             }
         }
 
