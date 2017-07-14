@@ -69,5 +69,7 @@ namespace MyDataPick
                 //this.DisplayAlert("标题", "点击了:" + year + "年" + month + "月" + day + "日", "取消");
             };
         }
+
+
     }
 }
