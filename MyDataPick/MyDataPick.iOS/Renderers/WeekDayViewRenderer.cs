@@ -30,8 +30,6 @@ namespace MyDataPick.iOS.Renderers
 
         public override SizeRequest GetDesiredSize(double widthConstraint, double heightConstraint)
         {
-            this.Frame = new CGRect(0, 0, widthConstraint, heightConstraint);
-            this.Init();
 
             //UICollectionViewFlowLayout weekDayColectionLayout = new UICollectionViewFlowLayout();
             //weekDayColectionLayout.ItemSize = new CoreGraphics.CGSize(130, 130);// CGSizeMake(130, 130);
@@ -68,7 +66,6 @@ namespace MyDataPick.iOS.Renderers
 
         public override void Draw(CGRect rect)
         {
-            base.Draw(rect);
 
             Console.WriteLine("Draw");
             //UIFont font = UIFont.BoldSystemFontOfSize(18f);
@@ -77,7 +74,6 @@ namespace MyDataPick.iOS.Renderers
             //str.DrawString(this.Bounds, font);
 
             //进行画上下线
-
             float width = (float)rect.Width;
             float height = (float)rect.Height;
             float bottom = (float)rect.Bottom;
@@ -122,7 +118,7 @@ namespace MyDataPick.iOS.Renderers
                 text.DrawString(new CGPoint(startX, startY), font);
                 //canvas.DrawText(text, startX, startY, paint);
             }
-
+            //base.Draw(rect);
             //CGContext contenxt = UIGraphics.GetCurrentContext();
             //Console.WriteLine("Draw");
             //UIGraphics.BeginImageContext(new CGSize(rect.Width, rect.Height));

@@ -3,17 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:MyDataPick.Views;assembly=MyDataPick"
              x:Class="MyDataPick.MainPage">
-
     <ContentPage.Padding>
-        <OnPlatform x:TypeArguments="Thickness" iOS="0, 20, 0, 0" />
+        <OnPlatform x:TypeArguments="Thickness" iOS="0, 100, 0, 0" />
     </ContentPage.Padding>
-    
     <StackLayout Orientation="Vertical">
-        <StackLayout Margin="10" WidthRequest="400" BackgroundColor="YellowGreen" HorizontalOptions="Center">
-            <!--<Label Text="Welcome to Xamarin Forms!"  />-->
-            <local:MyDataPick x:Name="dp" BackgroundColor="YellowGreen"  HeightRequest="400" />
+        <StackLayout Margin="10" WidthRequest="400" BackgroundColor="White"  HorizontalOptions="Center">
+            <local:MyDataPick x:Name="dp" BackgroundColor="White"  HeightRequest="400" />
         </StackLayout>
     </StackLayout>
-
-
 </ContentPage>
