@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\MyDataPick"
+    "\\MyDataPick",
+    "\\MyDataPick\\MyDataPick.iOS",
+    "\\MyDataPick\\MyDataPick.iOS\\Renderers"
   ],
   "SelectedNode": "\\MyDataPick.sln",
   "PreviewInSolutionExplorer": false

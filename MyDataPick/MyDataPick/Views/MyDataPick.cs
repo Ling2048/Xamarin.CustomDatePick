@@ -148,6 +148,12 @@ namespace MyDataPick.Views
                         HeightRequest = unit
                     };
 
+                    if (Device.RuntimePlatform.Equals(Device.iOS))
+                    {
+                        previous.Margin = new Thickness(5, 5, 0, 5);
+                        next.Margin = new Thickness(0, 5, 5, 5);
+                    }
+
                     //组装
                     Content = new StackLayout()
                     {
