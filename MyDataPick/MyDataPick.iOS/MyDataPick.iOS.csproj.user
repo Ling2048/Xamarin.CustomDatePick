@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <SelectedDevice>iPhone 7 iOS 10.3</SelectedDevice>
-    <DefaultDevice>iPhone 7 iOS 10.3</DefaultDevice>
+    <SelectedDevice>模拟器</SelectedDevice>
+    <DefaultDevice>iPad Pro %2810.5-inch%29 iOS 10.3</DefaultDevice>
   </PropertyGroup>
 </Project>
