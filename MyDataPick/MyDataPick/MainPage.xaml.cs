@@ -14,6 +14,7 @@ namespace MyDataPick
         {
             InitializeComponent();
 
+
             List<ThingModel> thing = new List<ThingModel>() {
                 new ThingModel(){ Date = new DateTime(2017,7,10), IsDone = true},
                 new ThingModel(){ Date = new DateTime(2017,7,11), IsDone = false},

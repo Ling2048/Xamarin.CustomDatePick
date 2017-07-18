@@ -97,7 +97,9 @@ namespace MyDataPick.iOS.Renderers
                     daysString[row, column] = day + 1;
                     //startX = columnWidth * i + (columnWidth - fontWidth) / 2;
                     //startY = (int)(height / 2 - ((float)text.StringSize(font).Height) / 2);
-                    float fontWidth = (float)day.ToString().StringSize(font).Width;
+                    float fontWidth;// = (float)day.ToString().StringSize(font).Width;
+                    if (day.ToString().Length > 1) fontWidth = (float)"00".StringSize(font).Width;
+                    else fontWidth = (float)"0".StringSize(font).Width;
                     startX = (mColumnSize * column + (mColumnSize - fontWidth) / 2);
                     startY = (mRowSize * row + mRowSize / 2 - (float)day.ToString().StringSize(font).Height / 2);
                     Console.WriteLine(day + "," + day.ToString().StringSize(font).Width + "," + fontWidth);
